@@ -2,6 +2,7 @@ package com.ashifali.restapi.service.impl;
 
 import com.ashifali.restapi.dto.ExpenseDTO;
 import com.ashifali.restapi.entity.ExpenseEntity;
+import com.ashifali.restapi.exceptions.ResourceNotFoundException;
 import com.ashifali.restapi.repository.ExpenseRepository;
 import com.ashifali.restapi.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ExpenseServiceImpl implements ExpenseService {
+public class ExpenseServiceImpl implements ExpenseService{
 
     private final ExpenseRepository expenseRepository;
 
@@ -32,14 +33,31 @@ public class ExpenseServiceImpl implements ExpenseService {
      * */
     @Override
     public List<ExpenseDTO> getAllExpenses() {
+
         //Call the repository method
         List<ExpenseEntity> list = expenseRepository.findAll();
         log.info("Printing the data from the repository {}", list);
+
+
         //Convert the Entity object to DTO object
         List<ExpenseDTO> listOfExpenses = list.stream().map(expenseEntity -> mapToExpenseDTO(expenseEntity)).collect(Collectors.toList());
+
+
         //Return the list
         return listOfExpenses;
     }
+
+    /**
+     * It will fetch the expense details from the database
+     * @param expenseId
+     * @return ExpenseDTO
+     * */
+    public ExpenseDTO getExpenseByExpenseId(String expenseId) {
+        ExpenseEntity expenseEntity = expenseRepository.findByExpenseId(expenseId).orElseThrow(()-> new ResourceNotFoundException("Expense not found for the expense id "+expenseId));
+        log.info("Printing the expense entity details {} ", expenseEntity);
+        return mapToExpenseDTO(expenseEntity);
+    }
+
 
     /**
      * Mapper method to convert expense entity to expense dto
