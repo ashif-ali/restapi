@@ -3,6 +3,7 @@ package in.ashifali.restapi.service.impl;
 import in.ashifali.restapi.Repository.ExpenseRepository;
 import in.ashifali.restapi.dto.ExpenseDTO;
 import in.ashifali.restapi.entity.ExpenseEntity;
+import in.ashifali.restapi.exception.ResourseNotFoundException;
 import in.ashifali.restapi.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,19 @@ public class ExpenseServiceImpl implements ExpenseService {
         List<ExpenseDTO> listOfExpenses = list.stream().map(expenseEntity -> mapToExpenseDTO(expenseEntity)).collect(Collectors.toList());
         //return the list
         return listOfExpenses;
+    }
+
+    /**
+     * It will fetch the expense details from database
+     * @param expenseId
+     * @return ExpenseDTO
+     */
+    @Override
+    public ExpenseDTO getExpenseByExpenseId(String expenseId) {
+        ExpenseEntity expenseEntity = expenseRepository.findByExpenseId(expenseId).orElseThrow(()->
+                new ResourseNotFoundException("Expense not found with expense id: " + expenseId));
+        log.info("Printing the data from repository {}", expenseEntity);
+        return mapToExpenseDTO(expenseEntity);
     }
 
     /***
